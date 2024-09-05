@@ -4,18 +4,24 @@
 
 uint8_t hid_kb_buffer[8] = { 0 };
 uint8_t hid_kb_buffer_raw[8] = { 0 };
+static usb_osal_sem_t hid_sem;
 
 void hid_in_callback(void)
 {
-    // USB_LOG_INFO("hid_in_callback\r\n");
     if (memcmp(hid_kb_buffer, hid_kb_buffer_raw, 8) != 0) {
         memcpy(hid_kb_buffer, hid_kb_buffer_raw, 8);
-        usbd_ep_start_write(0, 0x81, hid_kb_buffer, 8);
-        // printf("hid_kb_buffer: ");
-        // for (int i = 0; i < 8; i++) {
-        //     printf("%02x ", hid_kb_buffer[i]);
-        // }
-        // printf("\r\n");
+        usb_osal_sem_give(hid_sem);
+    }
+}
+
+void hid_key_task(void)
+{
+    int ret;
+    while (1) {
+        ret = usb_osal_sem_take(hid_sem, USB_OSAL_WAITING_FOREVER);
+        if (ret == 0) {
+            usbd_ep_start_write(0, 0x81, hid_kb_buffer, 8);
+        }
     }
 }
 
@@ -39,6 +45,7 @@ void hid_in_poll_thread(void *argument)
     struct usbh_hid *hid_class = (struct usbh_hid *)argument;
     struct usbh_urb *urb = &hid_class->intin_urb;
     while (1) {
+        urb->timeout = 0xffffffff;
         usbh_submit_urb(urb);
         usb_osal_msleep(1);
     }
@@ -54,7 +61,9 @@ void usbh_hid_run(struct usbh_hid *hid_class)
     if (hid_class->intf == 0) {
         hid_urb_fill(hid_class, hid_kb_buffer_raw, 8);
         struct hid_user_data *user_data = malloc(sizeof(struct hid_user_data));
+        hid_sem = usb_osal_sem_create(0);
         user_data->hid_thread = usb_osal_thread_create("hid_in_poll_thread", 512, 2, hid_in_poll_thread, hid_class);
+        user_data->key_thread = usb_osal_thread_create("hid_key_task", 512, 3, hid_key_task, NULL);
         hid_class->user_data = user_data;
     }
 }
