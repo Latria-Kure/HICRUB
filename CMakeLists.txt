@@ -62,7 +62,7 @@ file(GLOB SOURCES
     components/CherryUSB/core/*.c
     components/CherryUSB/port/dwc2/usb_dc_dwc2.c
     components/CherryUSB/port/dwc2/usb_hc_dwc2.c
-    components/CherryUSB/port/dwc2/usb_glue_st.c
+    Drivers/usb/port/usb_glue_st.c
     components/CherryUSB/osal/usb_osal_freertos.c
 
     Drivers/usb/class/hid/hid_hcd_dwc2.c

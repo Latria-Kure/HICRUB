@@ -16,7 +16,7 @@
 #define usb_malloc(size) malloc(size)
 #define usb_free(ptr)    free(ptr)
 
-#define CONFIG_USB_DBG_LEVEL USB_DBG_LOG
+#define CONFIG_USB_DBG_LEVEL USB_DBG_INFO
 
 #ifndef CONFIG_USB_DBG_LEVEL
 #define CONFIG_USB_DBG_LEVEL USB_DBG_INFO
@@ -219,10 +219,10 @@
 /* (5 * number of control endpoints + 8) + ((largest USB packet used / 4) + 1 for
  * status information) + (2 * number of OUT endpoints) + 1 for Global NAK
  */
-// #define CONFIG_USB_DWC2_RXALL_FIFO_SIZE (1024 / 4)
+#define CONFIG_USB_DWC2_RXALL_FIFO_SIZE 0x80
 /* IN Endpoints Max packet Size / 4 */
-// #define CONFIG_USB_DWC2_TX0_FIFO_SIZE (64 / 4)
-// #define CONFIG_USB_DWC2_TX1_FIFO_SIZE (512 / 4)
+#define CONFIG_USB_DWC2_TX0_FIFO_SIZE 0x40
+#define CONFIG_USB_DWC2_TX1_FIFO_SIZE 0x40
 // #define CONFIG_USB_DWC2_TX2_FIFO_SIZE (64 / 4)
 // #define CONFIG_USB_DWC2_TX3_FIFO_SIZE (64 / 4)
 // #define CONFIG_USB_DWC2_TX4_FIFO_SIZE (0 / 4)
