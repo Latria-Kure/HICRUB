@@ -40,7 +40,8 @@ target_include_directories(${PROJECT_NAME}.elf PRIVATE
     components/CherryUSB/core
     components/CherryUSB/port/dwc2
 
-    Drivers/usb/class/hid/
+    Drivers/usb/hid
+    Drivers/usb/hid/keyboard
 )
 
 
@@ -65,7 +66,8 @@ file(GLOB SOURCES
     Drivers/usb/port/usb_glue_st.c
     components/CherryUSB/osal/usb_osal_freertos.c
 
-    Drivers/usb/class/hid/hid_hcd_dwc2.c
+    Drivers/usb/hid/hid_hcd_dwc2.c
+    Drivers/usb/hid/keyboard/*.c
 
 )
 
@@ -102,6 +104,7 @@ target_compile_options(${PROJECT_NAME}.elf PRIVATE
     $<$<COMPILE_LANGUAGE:C,CXX,ASM>:-fno-common>
     $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>
     $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
+    $<$<COMPILE_LANGUAGE:CXX>:--specs=nano.specs>
 
     $<$<CONFIG:Release>:-Ofast>
     $<$<CONFIG:Debug>:-Og -g -gdwarf-2>
