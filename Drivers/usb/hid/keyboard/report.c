@@ -62,13 +62,11 @@ bool report_release_key(uint8_t keycode)
     } else {
         for (int i = 2; i < sizeof(report.buffer); i++) {
             if (report.buffer[i] == keycode) {
-                // USB_LOG_INFO("report_release_key: %d\n", keycode);
-                report.buffer[i] = 0;
-                // move the rest keys forward
                 for (int j = i; j < sizeof(report.buffer) - 1; j++) {
                     report.buffer[j] = report.buffer[j + 1];
                 }
                 report.idx--;
+                report.buffer[report.idx] = 0;
                 usb_osal_mutex_give(report_mutex);
                 return true;
             }
@@ -80,17 +78,17 @@ bool report_release_key(uint8_t keycode)
 
 void send_report()
 {
-    usb_osal_mutex_take(report_mutex);
-    printf("[before ep write] report: ");
-    for (int i = 0; i < 8; i++) {
-        printf("%02X ", report.buffer[i]);
-    }
-    printf("\n");
+    // usb_osal_mutex_take(report_mutex);
+    // printf("[before ep write] report: ");
+    // for (int i = 0; i < 8; i++) {
+    //     printf("%02X ", report.buffer[i]);
+    // }
+    // printf("\n");
     usbd_ep_start_write(0, 0x81, report.buffer, 8);
-    printf("[after ep write] report: ");
-    for (int i = 0; i < 8; i++) {
-        printf("%02X ", report.buffer[i]);
-    }
-    printf("\n");
-    usb_osal_mutex_give(report_mutex);
+    // printf("[after ep write] report: ");
+    // for (int i = 0; i < 8; i++) {
+    //     printf("%02X ", report.buffer[i]);
+    // }
+    // printf("\n");
+    // usb_osal_mutex_give(report_mutex);
 }

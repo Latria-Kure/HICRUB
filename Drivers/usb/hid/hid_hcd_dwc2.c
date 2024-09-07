@@ -134,7 +134,7 @@ void usbh_hid_run(struct usbh_hid *hid_class)
         hid_sem = usb_osal_sem_create(0);
         report_sem = usb_osal_sem_create(0);
         user_data->hid_thread = usb_osal_thread_create("hid_in_poll_thread", 512, 5, hid_in_poll_thread, hid_class);
-        user_data->key_thread = usb_osal_thread_create("hid_event_detect_task", 512, 3, hid_event_detect_task, NULL);
+        user_data->key_thread = usb_osal_thread_create("hid_event_detect_task", 1024, 3, hid_event_detect_task, NULL);
         // user_data->report_thread = usb_osal_thread_create("report_task", 256, 2, report_task, NULL);
         hid_class->user_data = user_data;
     }
