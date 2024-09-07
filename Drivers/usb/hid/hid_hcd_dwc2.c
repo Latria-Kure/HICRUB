@@ -23,7 +23,6 @@ void hid_event_detect_task(void)
     while (1) {
         ret = usb_osal_sem_take(hid_sem, USB_OSAL_WAITING_FOREVER);
         if (ret == 0) {
-            // usbd_ep_start_write(0, 0x81, report_current, 8);
             changed = false;
             // modifier keys
             if (report_current[0] != report_previous[0]) {
@@ -31,9 +30,11 @@ void hid_event_detect_task(void)
                 for (int i = 0; i < 8; i++) {
                     if ((report_current[0] & (1 << i)) != (report_previous[0] & (1 << i))) {
                         if (report_current[0] & (1 << i)) {
-                            changed |= report_press_key(KC_LEFT_CTRL + i);
+                            // changed |= report_press_key(KC_LEFT_CTRL + i);
+                            changed |= process_event((uint8_t)(KC_LEFT_CTRL + i), KEY_EVENT_PRESSED);
                         } else {
-                            changed |= report_release_key(KC_LEFT_CTRL + i);
+                            // changed |= report_release_key(KC_LEFT_CTRL + i);
+                            changed |= process_event((uint8_t)(KC_LEFT_CTRL + i), KEY_EVENT_RELEASED);
                         }
                     }
                 }
@@ -51,7 +52,8 @@ void hid_event_detect_task(void)
                         }
                     }
                     if (!found) {
-                        changed |= report_press_key(report_current[i]);
+                        // changed |= report_press_key(report_current[i]);
+                        changed |= process_event(report_current[i], KEY_EVENT_PRESSED);
                     }
                 }
             }
@@ -67,28 +69,29 @@ void hid_event_detect_task(void)
                         }
                     }
                     if (!found) {
-                        changed |= report_release_key(report_previous[i]);
+                        // changed |= report_release_key(report_previous[i]);
+                        changed |= process_event(report_previous[i], KEY_EVENT_RELEASED);
                     }
                 }
             }
             if (changed) {
-                usb_osal_sem_give(report_sem);
+                send_report();
             }
             memcpy(report_previous, report_current, 8);
         }
     }
 }
 
-void report_task(void)
-{
-    int ret;
-    while (1) {
-        ret = usb_osal_sem_take(report_sem, USB_OSAL_WAITING_FOREVER);
-        if (ret == 0) {
-            send_report();
-        }
-    }
-}
+// void report_task(void)
+// {
+//     int ret;
+//     while (1) {
+//         ret = usb_osal_sem_take(report_sem, USB_OSAL_WAITING_FOREVER);
+//         if (ret == 0) {
+//             send_report();
+//         }
+//     }
+// }
 
 void hid_urb_fill(struct usbh_hid *hid_clas, uint8_t *buffer, uint32_t buflen)
 {
@@ -132,7 +135,7 @@ void usbh_hid_run(struct usbh_hid *hid_class)
         report_sem = usb_osal_sem_create(0);
         user_data->hid_thread = usb_osal_thread_create("hid_in_poll_thread", 512, 5, hid_in_poll_thread, hid_class);
         user_data->key_thread = usb_osal_thread_create("hid_event_detect_task", 512, 3, hid_event_detect_task, NULL);
-        user_data->report_thread = usb_osal_thread_create("report_task", 256, 2, report_task, NULL);
+        // user_data->report_thread = usb_osal_thread_create("report_task", 256, 2, report_task, NULL);
         hid_class->user_data = user_data;
     }
 }
