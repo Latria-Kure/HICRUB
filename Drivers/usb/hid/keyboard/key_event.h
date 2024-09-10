@@ -11,7 +11,7 @@ typedef uint8_t key_event_t;
 #define KEY_EVENT_HOLD          2
 // clang-format on
 
-typedef void (*key_event_handler_t)(void);
+typedef bool (*key_event_handler_t)(void *key);
 
 typedef struct {
     key_event_handler_t press_handler;
@@ -29,6 +29,6 @@ typedef struct {
 } key_t;
 
 void create_macro(key_t *key, key_event_handler_t handler, key_event_handler_t release_handler);
-bool process_event(uint8_t keycode, key_event_t event);
+void process_event(uint8_t keycode, key_event_t event);
 
 #endif

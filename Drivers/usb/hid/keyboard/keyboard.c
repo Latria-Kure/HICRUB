@@ -3,29 +3,48 @@
 
 key_t keyboard[MAX_KEYCODE] = { 0 };
 bool kaqi_flag = false;
-
-void kaqi_handler(void)
-{
-    report_press_key(KC_I);
-    send_report();
-    usb_osal_msleep(20);
-    report_press_key(KC_D);
-    send_report();
-    usb_osal_msleep(20);
-    report_release_key(KC_I);
-    send_report();
-    usb_osal_msleep(20);
-    report_release_key(KC_D);
-    send_report();
-    usb_osal_msleep(200);
-    kaqi_flag = false;
-    if (keyboard[KC_I].physic_key_state == KEY_PRESSED) {
-        report_press_key(KC_I);
-        send_report();
+#define wait_key_release(key, timeout)                                 \
+    if (usb_osal_sem_take(key->evnet_tcb.release_sem, timeout) == 0) { \
+        return false;                                                  \
     }
-}
-void kaqi_release_handler(void)
+
+bool kaqi_handler(void *argument)
 {
+    key_t *key = (key_t *)argument;
+    report_press_key(KC_I);
+    wait_key_release(key, 20);
+    report_press_key(KC_D);
+    wait_key_release(key, 10);
+    report_release_key(KC_I);
+    wait_key_release(key, 20);
+    report_release_key(KC_D);
+    wait_key_release(key, 200);
+    return true;
+}
+void kaqi_release_handler(void *argument)
+{
+    report_release_key(KC_I);
+    report_release_key(KC_D);
+}
+
+bool supper_drift_handler(void *argument)
+{
+    key_t *key = (key_t *)argument;
+    report_press_key(KC_I);
+    wait_key_release(key, 20);
+    report_press_key(KC_D);
+    wait_key_release(key, 10);
+    report_release_key(KC_I);
+    wait_key_release(key, 50);
+    report_release_key(KC_D);
+    wait_key_release(key, 300);
+    return true;
+}
+
+void supper_drift_release_handler(void *argument)
+{
+    report_release_key(KC_I);
+    report_release_key(KC_D);
 }
 
 void forawrd_press_handler(void)
@@ -56,5 +75,5 @@ void keyboard_init(void)
         keyboard[i].evnet_tcb.release_sem = NULL;
     }
     create_macro(&keyboard[KC_SPACE], kaqi_handler, kaqi_release_handler);
-    // create_macro(&keyboard[KC_I], forawrd_press_handler, forawrd_release_handler);
+    // create_macro(&keyboard[KC_E], supper_drift_handler, supper_drift_release_handler);
 }

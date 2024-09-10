@@ -10,8 +10,8 @@ typedef struct
 } hid_report_t;
 
 void report_init(void);
-bool report_press_key(uint8_t keycode);
-bool report_release_key(uint8_t keycode);
-void send_report(void);
+void report_press_key(uint8_t keycode);
+void report_release_key(uint8_t keycode);
+bool send_report(void);
 
 #endif

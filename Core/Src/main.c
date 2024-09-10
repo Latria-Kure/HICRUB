@@ -56,10 +56,15 @@ static TaskHandle_t AppTaskCreate_Handle = NULL;
 extern UART_HandleTypeDef huart1;
 extern const struct usb_descriptor usb_desc;
 extern const uint8_t ReportDescriptor[];
+extern usb_osal_sem_t report_sem;
+usbd_endpoint_callback ep_in_callback(uint8_t busid, uint8_t ep, uint32_t nbytes)
+{
+    usb_osal_sem_give(report_sem);
+}
 struct usbd_interface hid_interface;
 struct usbd_endpoint kb_in_ep = {
     .ep_addr = 0x81,
-    .ep_cb = NULL
+    .ep_cb = ep_in_callback
 };
 
 struct usbd_endpoint kb_out_ep = {
@@ -98,7 +103,7 @@ void usb_dc_low_level_init()
     __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
 
     /* Peripheral interrupt init */
-    HAL_NVIC_SetPriority(OTG_FS_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(OTG_FS_IRQn, 1, 0);
     HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
 }
 
