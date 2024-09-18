@@ -28,6 +28,7 @@ void create_macro(key_t *key, key_event_handler_t press_handler, key_event_handl
     key->evnet_tcb.release_handler = release_handler;
     key->evnet_tcb.press_sem = usb_osal_sem_create(0);
     key->evnet_tcb.release_sem = usb_osal_sem_create(0);
+    key->evnet_tcb.enable = true;
     // assign name with keycode
     char name[16];
     sprintf(name, "key_event_%d", key->keycode);
@@ -43,7 +44,7 @@ void process_event(uint8_t keycode, key_event_t event)
             case KEY_EVENT_PRESSED:
                 if (key->physic_key_state == KEY_RELEASED) {
                     key->physic_key_state = KEY_PRESSED;
-                    if (key->evnet_tcb.key_thread != NULL) {
+                    if (key->evnet_tcb.key_thread != NULL && key->evnet_tcb.enable) {
                         usb_osal_sem_give(key->evnet_tcb.press_sem);
                         return;
                     } else {
@@ -55,7 +56,7 @@ void process_event(uint8_t keycode, key_event_t event)
             case KEY_EVENT_RELEASED:
                 if (key->physic_key_state == KEY_PRESSED) {
                     key->physic_key_state = KEY_RELEASED;
-                    if (key->evnet_tcb.key_thread != NULL) {
+                    if (key->evnet_tcb.key_thread != NULL && key->evnet_tcb.enable) {
                         usb_osal_sem_give(key->evnet_tcb.release_sem);
                         return;
                     } else {

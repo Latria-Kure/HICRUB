@@ -19,6 +19,7 @@ typedef struct {
     usb_osal_thread_t key_thread;
     usb_osal_sem_t press_sem;
     usb_osal_sem_t release_sem;
+    bool enable;
 } key_evnent_tcb_t;
 
 typedef struct {
