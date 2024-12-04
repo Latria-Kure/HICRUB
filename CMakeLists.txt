@@ -40,8 +40,9 @@ target_include_directories(${PROJECT_NAME}.elf PRIVATE
     components/CherryUSB/core
     components/CherryUSB/port/dwc2
 
-    Drivers/usb/hid
-    Drivers/usb/hid/keyboard
+    Drivers/usb/host
+    Drivers/usb/host/keyboard
+    Drivers/usb/device
 )
 
 
@@ -66,8 +67,9 @@ file(GLOB SOURCES
     Drivers/usb/port/usb_glue_st.c
     components/CherryUSB/osal/usb_osal_freertos.c
 
-    Drivers/usb/hid/hid_hcd_dwc2.c
-    Drivers/usb/hid/keyboard/*.c
+    Drivers/usb/host/hid_hcd.c
+    Drivers/usb/host/keyboard/*.c
+    Drivers/usb/device/*.c
 
 )
 

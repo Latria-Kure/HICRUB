@@ -1,6 +1,9 @@
 
-#include "hid_hcd_dwc2.h"
+#include "hid_hcd.h"
 #include "usbd_core.h"
+#include "usbh_core.h"
+#include "usbh_hid.h"
+#include "usb_hid.h"
 #include "report.h"
 #include "keyboard.h"
 

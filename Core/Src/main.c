@@ -29,6 +29,8 @@
 #include "usb_desc.h"
 #include "usb_dc.h"
 
+#include "hid_dcd.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -54,23 +56,7 @@
 /* USER CODE BEGIN PV */
 static TaskHandle_t AppTaskCreate_Handle = NULL;
 extern UART_HandleTypeDef huart1;
-extern const struct usb_descriptor usb_desc;
-extern const uint8_t ReportDescriptor[];
-extern usb_osal_sem_t report_sem;
-usbd_endpoint_callback ep_in_callback(uint8_t busid, uint8_t ep, uint32_t nbytes)
-{
-    usb_osal_sem_give(report_sem);
-}
-struct usbd_interface hid_interface;
-struct usbd_endpoint kb_in_ep = {
-    .ep_addr = 0x81,
-    .ep_cb = ep_in_callback
-};
 
-struct usbd_endpoint kb_out_ep = {
-    .ep_addr = 0x01,
-    .ep_cb = NULL
-};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -131,10 +117,7 @@ void usb_hc_low_level_init(struct usbh_bus *bus)
     __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
 
     /* Peripheral interrupt init */
-    // HAL_NVIC_SetPriority(OTG_HS_EP1_OUT_IRQn, 0, 0);
-    // HAL_NVIC_EnableIRQ(OTG_HS_EP1_OUT_IRQn);
-    // HAL_NVIC_SetPriority(OTG_HS_EP1_IN_IRQn, 0, 0);
-    // HAL_NVIC_EnableIRQ(OTG_HS_EP1_IN_IRQn);
+
     HAL_NVIC_SetPriority(OTG_HS_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(OTG_HS_IRQn);
     /* USER CODE BEGIN USB_OTG_HS_MspInit 1 */
@@ -148,30 +131,14 @@ void usb_init_finished_handler(uint8_t busid, uint8_t event)
 }
 static void AppTaskCreate(void)
 {
-    BaseType_t xReturn = pdPASS;
     taskENTER_CRITICAL();
     usbh_initialize(0, 0x40040000);
     USB_LOG_INFO("usbh_initialize finished\n");
     usb_osal_msleep(1);
-    usbd_desc_register(0, &usb_desc);
-    usbd_hid_init_intf(0, &hid_interface, ReportDescriptor, HID_REPORT_DESC_SIZE);
-    usbd_add_endpoint(0, &kb_in_ep);
-    usbd_add_endpoint(0, &kb_out_ep);
-    usbd_add_interface(0, &hid_interface);
+    usbd_hid_init();
     usbd_initialize(0, 0x50000000UL, usb_init_finished_handler);
     usb_osal_msleep(1);
-    // xReturn = xTaskCreate(
-    //     (TaskFunction_t)KeyboardTask,
-    //     (const char *)"KeyboardTask",
-    //     (uint16_t)512,
-    //     (void *)NULL,
-    //     (UBaseType_t)1,
-    //     (TaskHandle_t *)&KeyboardTask_Handle);
-    // if (xReturn == pdPASS) {
-    //     USB_LOG_INFO("KeyboardTask created\n");
-    // } else {
-    //     return;
-    // }
+
     vTaskDelete(AppTaskCreate_Handle);
     taskEXIT_CRITICAL();
 }
