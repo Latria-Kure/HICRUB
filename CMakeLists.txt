@@ -1,48 +1,64 @@
-#THIS FILE IS AUTO GENERATED FROM THE TEMPLATE! DO NOT CHANGE!
-set(CMAKE_SYSTEM_VERSION 1)
 cmake_minimum_required(VERSION 3.22)
 cmake_policy(SET CMP0091 NEW)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
-set(TOOLCHAIN_NAME "arm-none-embed")
-set(CMAKE_SYSTEM_NAME Generic)
+# set(TOOLCHAIN_NAME "arm-none-embed")
+# set(CMAKE_SYSTEM_NAME Generic)
 
-# specify cross-compilers and tools
-set(CMAKE_C_COMPILER arm-none-eabi-gcc)
-set(CMAKE_CXX_COMPILER arm-none-eabi-g++)
-set(CMAKE_ASM_COMPILER  arm-none-eabi-gcc)
-set(CMAKE_AR arm-none-eabi-ar)
-set(CMAKE_OBJCOPY arm-none-eabi-objcopy)
-set(CMAKE_OBJDUMP arm-none-eabi-objdump)
-set(SIZE arm-none-eabi-size)
-set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
-
+# # specify cross-compilers and tools
+# set(CMAKE_C_COMPILER arm-none-eabi-gcc)
+# set(CMAKE_CXX_COMPILER arm-none-eabi-g++)
+# set(CMAKE_ASM_COMPILER  arm-none-eabi-gcc)
+# set(CMAKE_AR arm-none-eabi-ar)
+# set(CMAKE_OBJCOPY arm-none-eabi-objcopy)
+# set(CMAKE_OBJDUMP arm-none-eabi-objdump)
+# set(CMAKE_SIZE arm-none-eabi-size)
+# set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 # project settings
 project(HICRUB LANGUAGES ASM C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
+message("[[[${LOCAL_TEST}]]]")
+if(LOCAL_TEST)
+
+else()
+# specify cross-compiling tools
+set(CMAKE_ASM_COMPILER  arm-none-eabi-gcc)
+set(CMAKE_AR arm-none-eabi-ar)
+set(CMAKE_OBJCOPY arm-none-eabi-objcopy)
+set(CMAKE_OBJDUMP arm-none-eabi-objdump)
+set(CMAKE_SIZE arm-none-eabi-size)
+set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
+
 add_executable(${PROJECT_NAME}.elf "")
 
 # include directories
 target_include_directories(${PROJECT_NAME}.elf PRIVATE
-    Core/Inc
-    Drivers/CMSIS/Include
-    Drivers/STM32F4xx_HAL_Driver/Inc
-    Drivers/CMSIS/Device/ST/STM32F4xx/Include
-    utils
+    app
+    app/bsp
+    app/usb_device
+    app/usb_host
+
+    # HAL
+    extern/CMSIS/Include
+    extern/STM32F4xx_HAL_Driver/Inc
+    extern/CMSIS/Device/ST/STM32F4xx/Include
+    app/config/stm32_hal
 
     # FreeRTOS
-    components/FreeRTOS/Source/include
-    components/FreeRTOS/Source/portable/GCC/ARM_CM4F
+    extern/FreeRTOS/Kernel/include
+    extern/FreeRTOS/Kernel/portable/GCC/ARM_CM4F
+    app/config/FreeRTOS
 
-    components/CherryUSB/class/hid
-    components/CherryUSB/class/hub
-    components/CherryUSB/common
-    components/CherryUSB/core
-    components/CherryUSB/port/dwc2
+    # CherryUSB
+    extern/CherryUSB/class/hid
+    extern/CherryUSB/class/hub
+    extern/CherryUSB/common
+    extern/CherryUSB/core
+    extern/CherryUSB/port/dwc2
+    app/config/CherryUSB
 
-    Drivers/usb/host
-    Drivers/usb/host/keyboard
-    Drivers/usb/device
+    # lib
+    include/utils
 )
 
 
@@ -51,31 +67,34 @@ target_include_directories(${PROJECT_NAME}.elf PRIVATE
 # source files list
 file(GLOB SOURCES
     startup_stm32f407xx.s
-    Core/Src/*.c
-    Drivers/STM32F4xx_HAL_Driver/Src/*.c
-    utils/*.c
-    # Free RTOS
-    components/FreeRTOS/Source/*.c
-    components/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
-    components/FreeRTOS/Source/portable/MemMang/heap_4.c
+    app/*.c
+    app/bsp/*.c
+    app/usb_host/*.c
+    app/usb_device/*.c
 
-    components/CherryUSB/class/hid/*.c
-    components/CherryUSB/class/hub/*.c
-    components/CherryUSB/core/*.c
-    components/CherryUSB/port/dwc2/usb_dc_dwc2.c
-    components/CherryUSB/port/dwc2/usb_hc_dwc2.c
-    Drivers/usb/port/usb_glue_st.c
-    components/CherryUSB/osal/usb_osal_freertos.c
+    # HAL
+    extern/STM32F4xx_HAL_Driver/Src/*.c
 
-    Drivers/usb/host/hid_hcd.c
-    Drivers/usb/host/keyboard/*.c
-    Drivers/usb/device/*.c
+    # FreeRTOS
+    extern/FreeRTOS/Kernel/*.c
+    extern/FreeRTOS/Kernel/portable/GCC/ARM_CM4F/port.c
+    extern/FreeRTOS/Kernel/portable/MemMang/heap_4.c
 
+    # CherryUSB
+    extern/CherryUSB/class/hid/*.c
+    extern/CherryUSB/class/hub/*.c
+    extern/CherryUSB/core/*.c
+    extern/CherryUSB/port/dwc2/usb_dc_dwc2.c
+    extern/CherryUSB/port/dwc2/usb_hc_dwc2.c
+    extern/CherryUSB/osal/usb_osal_freertos.c
+    src/dwc2_port/usb_glue_st.c
+
+    src/utils/*.c
 )
 
 # removed files
 file(GLOB_RECURSE REMOVE_SOURCES
-    Drivers/STM32F4xx_HAL_Driver/Src/*_template.c
+    extern/STM32F4xx_HAL_Driver/Src/*_template.c
 )
 
 list(REMOVE_ITEM SOURCES ${REMOVE_SOURCES})
@@ -152,5 +171,6 @@ add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
     COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${PROJECT_NAME}.elf> ${HEX_FILE}
     COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}.elf> ${BIN_FILE}
     COMMENT "Building ${HEX_FILE} Building ${BIN_FILE}"
-    COMMAND ${SIZE} -Ax $<TARGET_FILE:${PROJECT_NAME}.elf>
+    COMMAND ${CMAKE_SIZE} -Ax $<TARGET_FILE:${PROJECT_NAME}.elf>
 )
+endif()

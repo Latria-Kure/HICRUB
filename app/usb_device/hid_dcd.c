@@ -6,7 +6,6 @@
 #include "usbd_hid.h"
 
 
-
 const uint8_t ReportDescriptor[HID_REPORT_DESC_SIZE] = {
     0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
     0x09, 0x06,                    // USAGE (Keyboard)
@@ -151,12 +150,12 @@ const struct usb_descriptor usb_desc = {
     .string_descriptor_callback = string_descriptor_callback,
 };
 
-extern usb_osal_sem_t report_sem;
+// extern usb_osal_sem_t report_sem;
 struct usbd_interface hid_interface;
 
 void ep_in_callback(uint8_t busid, uint8_t ep, uint32_t nbytes)
 {
-    usb_osal_sem_give(report_sem);
+    // usb_osal_sem_give(report_sem);
 }
 
 struct usbd_endpoint kb_in_ep = {
