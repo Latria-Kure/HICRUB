@@ -1,9 +1,9 @@
 // clang-format off
 #include "usbd_core.h"
+#include "usbh_core.h"
 #include "usb_hid.h"
 #include "usb_desc.h"
-
-
+#include "usbd_hid.h"
 
 
 const uint8_t ReportDescriptor[HID_REPORT_DESC_SIZE] = {
@@ -111,16 +111,12 @@ const struct usb_kb_configuration_descriptor kb_config_desc ={
     }
 };
 
-// ����������
-const uint8_t MyLangDescr[]
-    = { 0x09, 0x04 };
-// ������Ϣ
+// clang-format on
+
+const uint8_t MyLangDescr[] = { 0x09, 0x04 };
 const uint8_t MyManuInfo[] = { 'S', 'T', 'M', '3', '2', 'F', '4', ' ', 'D', 'E', 'V' };
-// ��Ʒ��Ϣ
-const uint8_t MyProdInfo[] = {'S','T','M','3','2','F','4',' ','U','S','B',' ','H','I','D'};
-
-const uint8_t MySerialNumber [] = {'A','3','5','7','7','6', 'T','P' };
-
+const uint8_t MyProdInfo[] = { 'S', 'T', 'M', '3', '2', 'F', '4', ' ', 'U', 'S', 'B', ' ', 'H', 'I', 'D' };
+const uint8_t MySerialNumber[] = { 'A', '3', '5', '7', '7', '6', 'T', 'P' };
 
 const uint8_t *device_descriptor_callback(uint8_t speed)
 {
@@ -153,3 +149,30 @@ const struct usb_descriptor usb_desc = {
     .config_descriptor_callback = config_descriptor_callback,
     .string_descriptor_callback = string_descriptor_callback,
 };
+
+// extern usb_osal_sem_t report_sem;
+struct usbd_interface hid_interface;
+
+void ep_in_callback(uint8_t busid, uint8_t ep, uint32_t nbytes)
+{
+    // usb_osal_sem_give(report_sem);
+}
+
+struct usbd_endpoint kb_in_ep = {
+    .ep_addr = 0x81,
+    .ep_cb = ep_in_callback
+};
+
+struct usbd_endpoint kb_out_ep = {
+    .ep_addr = 0x01,
+    .ep_cb = NULL
+};
+
+void usbd_hid_init(void)
+{
+    usbd_desc_register(0, &usb_desc);
+    usbd_hid_init_intf(0, &hid_interface, ReportDescriptor, HID_REPORT_DESC_SIZE);
+    usbd_add_interface(0, &hid_interface);
+    usbd_add_endpoint(0, &kb_in_ep);
+    usbd_add_endpoint(0, &kb_out_ep);
+}

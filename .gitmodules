@@ -1,6 +1,9 @@
-[submodule "components/FreeRTOS/Source"]
-	path = components/FreeRTOS/Source
-	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
-[submodule "components/CherryUSB"]
-	path = components/CherryUSB
+[submodule "extern/CherryUSB"]
+	path = extern/CherryUSB
 	url = https://github.com/cherry-embedded/CherryUSB.git
+[submodule "extern/FreeRTOS/Kernel"]
+	path = extern/FreeRTOS/Kernel
+	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+[submodule "extern/googletest"]
+	path = extern/googletest
+	url = https://github.com/google/googletest/

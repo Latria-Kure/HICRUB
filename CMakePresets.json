@@ -1,0 +1,48 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 19,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "cortex-m4-debug",
+            "hidden": false,
+            "description": "Default configuration",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "LOCAL_TEST": "FALSE"
+            },
+            "toolchainFile": "${sourceDir}/cmake/arm-none-eabi-gcc.cmake"
+        },
+        {
+            "name": "windows-x64-test",
+            "hidden": false,
+            "description": "Windows x64 configuration",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/test",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "LOCAL_TEST": "TRUE"
+            },
+            "toolchainFile": "${sourceDir}/cmake/gcc.cmake"
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "cortex-m4-debug",
+            "description": "Default build",
+            "configurePreset": "cortex-m4-debug",
+            "configuration": "Debug"
+        },
+        {
+            "name": "windows-x64-test",
+            "description": "Windows x64 build",
+            "configurePreset": "windows-x64-test",
+            "configuration": "Debug"
+        }
+    ]
+}
