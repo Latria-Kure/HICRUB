@@ -36,19 +36,13 @@
             "name": "cortex-m4-debug",
             "description": "Default build",
             "configurePreset": "cortex-m4-debug",
-            "configuration": "Debug",
-            "targets": [
-                "HICRUB.elf"
-            ]
+            "configuration": "Debug"
         },
         {
             "name": "windows-x64-test",
             "description": "Windows x64 build",
             "configurePreset": "windows-x64-test",
-            "configuration": "Debug",
-            "targets": [
-                "test"
-            ]
+            "configuration": "Debug"
         }
     ]
 }

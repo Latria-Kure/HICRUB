@@ -19,7 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "gpio.h"
-#include "retarget.h"
+#include "utils/retarget.h"
 #include "usart.h"
 #include "FreeRTOS.h"
 #include "task.h"
